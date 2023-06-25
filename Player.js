@@ -15,6 +15,7 @@ class Player extends GameObject{
                 this.clientY = e.clientY
             })
             window.addEventListener('mouseup',(e)=>{
+                console.log('mouseUp')
                 this.rigidbody.accelerate((this.clientX-e.clientX)*100,(this.clientY-e.clientY)*100)
             })
         }
@@ -25,6 +26,7 @@ class Player extends GameObject{
         }
     }
     update(deltaTime){
+        
         deltaTime *= 100
         if(this.isControlled){
             const{x,y} = this.input.directionVector.normalize()
@@ -32,7 +34,7 @@ class Player extends GameObject{
 
         }
         else{
-            this.rigidbody.accelerate(0,300*deltaTime)
+            this.rigidbody.accelerate(0,0*deltaTime)
         }
 
         if(window.main.controls.KeyZ){
@@ -44,9 +46,16 @@ class Player extends GameObject{
                 this.rigidbody.accelerate(((aX/dist)*delta)*deltaTime,((aY/dist)*delta)*deltaTime)
             }
         }
-
     }
     fixedUpdate(){
+        if(!this.isControlled) return
+/*         window.main.fixedConstraints.forEach(constraint=>{
+            const {distance,closestPoint} = constraint.getDistance(this.transform)
+            if(distance<50){
+                console.log(distance)
+            }
 
+
+        }) */
     }
 }

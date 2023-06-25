@@ -24,10 +24,10 @@ class GameObject{
             this.aabb = component
             this.aabb._init(this)
         }
-        if(component.name == 'FixedConstraint'){
+/*         if(component.name == 'FixedConstraint'){
             this.constraints.push(component)
             this.constraints[this.constraints.length-1]._init(this)
-        }
+        } */
     }
     _update(deltaTime){
         this.update(deltaTime)

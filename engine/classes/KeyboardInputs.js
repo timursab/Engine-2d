@@ -49,6 +49,8 @@ class KeyboardInputs{
                 this.heldDirections.unshift(dir)
                 this.setDirectionVector()
             }
+
+
         })
         document.addEventListener('keyup',e => {
             const dir = this.map[e.code]
@@ -57,6 +59,7 @@ class KeyboardInputs{
                 this.heldDirections.splice(index,1)
                 this.setDirectionVector()
             }
+
         })
     }
 }

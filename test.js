@@ -6,31 +6,40 @@ wall1.attach(new ShapeRenderer('square',200,200))
 wall1.attach(new AABB(200,200))
 
 
-const player5 = new Player(1000,250,false,5)
-const player6 = new Player(1000,400,false,5)
-const player100 = new Player(1150,250,false,5)
-const player101 = new Player(1150,400,false,5)
-player5.attach(new FixedConstraint(player6,150))
+const player5 = new Player(1000,250,false,25)
+const player6 = new Player(1000,400,false,25)
+const player100 = new Player(1150,250,false,25)
+const player101 = new Player(1150,400,false,25)
+const player102 = new Player(1151,400,false,25)
+const player103 = new Player(1151,400,false,25)
+/* player5.attach(new FixedConstraint(player6,150))
 player5.attach(new FixedConstraint(player100,150))
-player100.attach(new FixedConstraint(player101,150))
-player101.attach(new FixedConstraint(player6,150))
-player5.attach(new FixedConstraint(player101,212.132034356))
+player100.attach(new FixedConstraint(player6,150)) */
+/* player101.attach(new FixedConstraint(player6,150))
+player5.attach(new FixedConstraint(player101,212.132034356)) */
 
 
-const main = new Main()
+const main = new Main(undefined,144)
+
+
+/* main.addConstraint(new FixedConstraint(player102,player100,150))
+main.addConstraint(new FixedConstraint(player103,player102,150)) */
 main.setScenes({
     testScene:{
         gameObjects:{
-            player: new Player(600,500,true),
-            player1: new Player(1000,1000),
-            player2: new Player(1000,900),
-            player3: new Player(1000,800),
-            player4: new Player(1000,700),
             player5,
             player6,
             player100,
             player101,
-/*             player7: new Player(1100,1000),
+            player102,
+            player103,
+            player: new Player(600,500,true),
+/*             player1: new Player(1000,1000),
+            player2: new Player(1000,900),
+            player3: new Player(1000,800),
+            player4: new Player(1000,700),
+
+            player7: new Player(1100,1000),
             player8: new Player(1100,900),
             player9: new Player(1100,800),
             player10: new Player(1100,700),
@@ -65,13 +74,19 @@ main.setScenes({
     },
     demoScene:{
         gameObjects:{
-            player: new Player(960,300),
+            player: new Player(960,300,true),
             wall1,
         }
     }
 })
 
-/* main.setScenes({
+main.addConstraint(new FixedConstraint(player5,player6,150))
+main.addConstraint(new FixedConstraint(player5,player100,150))
+main.addConstraint(new FixedConstraint(player100,player6,150))
+main.addConstraint(new FixedConstraint(player101,player6,150))
+main.addConstraint(new FixedConstraint(player101,player100,150))
+
+/*main.setScenes({
     testScene:{
         gameObjects:{
             player: new Player(600,300,true),
@@ -89,9 +104,11 @@ main.setScenes({
         }
     }
 })
- */
+*/
+
 
 let x = 0
+
 const loop = ()=>{
     x = x+1
     /* setTimeout(loop,10,x+1) */
@@ -99,11 +116,21 @@ const loop = ()=>{
     //p.rigidbody.accelerate(35000,0)
     main.instantiate(p,'a'+ x.toString())
 }
+main.mainUpdate = () => {
 
-addEventListener('keydown',(e)=>{
-    if(e.code == 'Space'){
+    if(main.keyDown.KeyK){
+        if(main.currentScene == 'testScene'){
+            main.changeScene('demoScene')
+        }
+        else{
+            main.changeScene('testScene')
+        }
+    }
+
+    if(main.keyDown.Space){ 
         loop()
     }
-})
+}
+
 
 main.start()

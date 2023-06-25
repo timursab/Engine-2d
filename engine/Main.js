@@ -1,12 +1,14 @@
 class Main{
-    constructor(canvas){
+    constructor(canvas,physicsTargetFPS){
         this.canvas = canvas || document.querySelector('canvas')
+        this.physicsTargetFPS =  physicsTargetFPS || 60
         this.ctx = this.canvas.getContext('2d')
         this.prevTime = performance.now()
         this.bind = this.update.bind(this)
         this.deltaTime = 0
         this.event = new CustomEvent('update',{deltaTime:this.deltaTime})
         this.controls = {}
+        this.keyDown = {}
         this.rigidbodies = []
         this.aabbs = []
         window.main = this
@@ -21,22 +23,26 @@ class Main{
             this.mousePos.y = y
         })
         this._initControls()
+        this.mainUpdate = ()=>{}
+
+        this.fixedConstraints = []
     }
     start(){
         this.fpsCounter = 0
         this.update()
         this.fpsFunction = ()=>{
             setTimeout(this.fpsFunction,1000)
-            //console.log(this.fpsCounter)
             this.fpsCounter = 0
         }
         this.fpsFunction()
 
         this.fixedUpdate = ()=>{
-            setTimeout(this.fixedUpdate,1000/60)
-            /* console.log('fixedUpdate') */
+            setTimeout(this.fixedUpdate,1000/this.physicsTargetFPS)
             Object.keys(this.scenes[this.currentScene].gameObjects).forEach((key)=>{
                 this.scenes[this.currentScene].gameObjects[key].physics(0.03)
+            })
+            Object.keys(this.scenes[this.currentScene].constraints).forEach((constraint)=>{
+                this.scenes[this.currentScene].constraints[constraint].update()
             })
         }
         this.fixedUpdate()
@@ -54,6 +60,15 @@ class Main{
 
         Object.keys(this.scenes[this.currentScene].gameObjects).forEach((key)=>{
             this.scenes[this.currentScene].gameObjects[key]._update(this.deltaTime)
+        })
+        this.scenes[this.currentScene].constraints.forEach((constraint)=>{
+            //Render the constraint
+            constraint.render(constraint)
+        })
+        this.mainUpdate()
+
+        Object.keys(this.keyDown).forEach((key)=>{
+            this.keyDown[key] = false
         })
     }
     changeScene(name){
@@ -75,7 +90,12 @@ class Main{
         })
     }
     setScenes(scenes){
-        this.scenes=scenes
+
+        this.scenes = scenes
+        Object.keys(this.scenes).forEach((scene)=>{
+            this.scenes[scene].constraints = []
+        })
+        console.log(this.scenes)
         //Set first scene as default
         this.currentScene = Object.keys(this.scenes)[0]
 
@@ -105,6 +125,7 @@ class Main{
     _initControls(){
         document.addEventListener('keydown',(e)=>{
             if(!this.controls[e.code]){
+                this.keyDown[e.code] = true
                 this.controls[e.code]=true
             }
         })
@@ -113,5 +134,10 @@ class Main{
                 this.controls[e.code]=false
             }
         })
+    }
+
+    addConstraint(constraint){
+        //this.fixedConstraints.push(constraint)
+        this.scenes[this.currentScene].constraints.push(constraint)
     }
 }
