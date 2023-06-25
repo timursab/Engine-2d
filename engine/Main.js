@@ -24,8 +24,6 @@ class Main{
         })
         this._initControls()
         this.mainUpdate = ()=>{}
-
-        this.fixedConstraints = []
     }
     start(){
         this.fpsCounter = 0
@@ -137,7 +135,6 @@ class Main{
     }
 
     addConstraint(constraint){
-        //this.fixedConstraints.push(constraint)
         this.scenes[this.currentScene].constraints.push(constraint)
     }
 }
