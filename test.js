@@ -12,11 +12,6 @@ const player100 = new Player(1150,250,false,25)
 const player101 = new Player(1150,400,false,25)
 const player102 = new Player(1151,400,false,25)
 const player103 = new Player(1151,400,false,25)
-/* player5.attach(new FixedConstraint(player6,150))
-player5.attach(new FixedConstraint(player100,150))
-player100.attach(new FixedConstraint(player6,150)) */
-/* player101.attach(new FixedConstraint(player6,150))
-player5.attach(new FixedConstraint(player101,212.132034356)) */
 
 
 const main = new Main(undefined,144)
@@ -80,11 +75,11 @@ main.setScenes({
     }
 })
 
-main.addConstraint(new FixedConstraint(player5,player6,150))
-main.addConstraint(new FixedConstraint(player5,player100,150))
-main.addConstraint(new FixedConstraint(player100,player6,150))
-main.addConstraint(new FixedConstraint(player101,player6,150))
-main.addConstraint(new FixedConstraint(player101,player100,150))
+main.addConstraint(new FixedConstraint(player5,player6,250))
+main.addConstraint(new FixedConstraint(player5,player100,250))
+main.addConstraint(new FixedConstraint(player100,player6,250))
+main.addConstraint(new FixedConstraint(player101,player6,250))
+main.addConstraint(new FixedConstraint(player101,player100,250))
 
 /*main.setScenes({
     testScene:{

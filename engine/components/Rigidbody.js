@@ -136,38 +136,17 @@ class Rigidbody{
     }
     collisions(){
 
-        //Line collisions (Fixed constraints)
-        /* window.main.fixedConstraints.forEach(constraint=>{
-            const direction = { x: constraint.p2.transform.x - constraint.p1.transform.x, y: constraint.p2.transform.y - constraint.p1.transform.y };
-            const lineLength = Math.sqrt(direction.x * direction.x + direction.y * direction.y);
-            const unitDirection = { x: direction.x / lineLength, y: direction.y / lineLength };
-            const normal = { x: -unitDirection.y, y: unitDirection.x }; // perpendicular to the line segment
-            
-            const pointToObject = { x: this.gameObject.transform.x - constraint.p1.transform.x, y: this.gameObject.transform.y - constraint.p1.transform.y };
-            
-            const dotProduct = (pointToObject.x * unitDirection.x + pointToObject.y * unitDirection.y) / (lineLength * lineLength);
-            if (dotProduct >= 0 && dotProduct <= 1) {
-              const closestPoint = {
-                x: constraint.p1.transform.x + dotProduct * direction.x,
-                y: constraint.p1.transform.y + dotProduct * direction.y,
-              };
-          
-              const distance = Math.sqrt(
-                (closestPoint.x - this.gameObject.transform.x) * (closestPoint.x - this.gameObject.transform.x) +
-                (closestPoint.y - this.gameObject.transform.y) * (closestPoint.y - this.gameObject.transform.y)
-              );
-          
-              if (distance < 50) {
-                const reflection = {
-                  x: this.velocityX- 2 * (this.velocityX * normal.x + this.velocityY * normal.y) * normal.x,
-                  y: this.velocityY - 2 * (this.velocityX * normal.x + this.velocityY * normal.y) * normal.y,
-                };
-                // Update the object's velocity
-                this.xOverride = reflection.x;
-                this.yOverride = reflection.y;
-              }
+        //Collisions for fixed constraints
+        Object.keys(window.main.scenes[window.main.currentScene].constraints).forEach((constraints)=>{
+            const constraint = window.main.scenes[window.main.currentScene].constraints[constraints]
+            if(!(constraint.p1 == this.gameObject || constraint.p2 == this.gameObject)){
+                const check = circleLineCollision(this.gameObject.transform.x,this.gameObject.transform.y,this.gameObject.collider.radius,constraint.p1.transform.x,constraint.p1.transform.y,constraint.p2.transform.x,constraint.p2.transform.y)
+                if(check){
+                    console.log('collision')
+                    resolveCircleLineCollision(this.gameObject,constraint)
+                }
             }
-        }) */
+        })
 
         
 
@@ -195,3 +174,65 @@ class Rigidbody{
         this.acceleration.y += y
     }
 }
+
+
+
+function resolveCircleLineCollision(circle, constraint) {
+    const closestPoint = getClosestPointOnLine(constraint.p1.transform.x, constraint.p1.transform.y, constraint.p2.transform.x, constraint.p2.transform.y, circle.transform.x, circle.transform.y);
+    const distance = Math.sqrt((circle.transform.x-closestPoint.x)**2+(circle.transform.y-closestPoint.y)**2);
+    const axis = {x: ( closestPoint.x -circle.transform.x), y: (closestPoint.y-circle.transform.y)};
+    const delta = circle.collider.radius - distance;
+    const normal = {x: axis.x/distance, y: axis.y/distance};
+    circle.transform.x -= normal.x * delta;
+    circle.transform.y -= normal.y * delta;
+  
+    const p1Dist = Math.sqrt((constraint.p1.transform.x-circle.transform.x)**2+(constraint.p1.transform.y-circle.transform.y)**2)/constraint.distance;
+  
+    constraint.p1.transform.x += normal.x * delta * (1-p1Dist);
+    constraint.p1.transform.y += normal.y * delta * (1-p1Dist);
+    constraint.p2.transform.x += normal.x * delta * p1Dist;
+    constraint.p2.transform.y += normal.y * delta * p1Dist;
+  }
+  
+  
+  function getClosestPointOnLine(x1, y1, x2, y2, px, py) {
+    const dx = x2 - x1;
+    const dy = y2 - y1;
+    const vx = px - x1;
+    const vy = py - y1;
+    const dot = vx * dx + vy * dy;
+    const lengthSquared = dx * dx + dy * dy;
+    const t = Math.max(0, Math.min(dot / lengthSquared, 1));
+    const closestX = x1 + t * dx;
+    const closestY = y1 + t * dy;
+    return { x: closestX, y: closestY };
+  }
+  
+  function circleLineCollision(circleX, circleY, radius, lineX1, lineY1, lineX2, lineY2) {
+    // Vector from one endpoint of the line to the circle center
+    const vX = circleX - lineX1;
+    const vY = circleY - lineY1;
+  
+    // Vector representing the line segment
+    const wX = lineX2 - lineX1;
+    const wY = lineY2 - lineY1;
+  
+    // Calculate the dot product of V and W
+    const dot = vX * wX + vY * wY;
+  
+    // Calculate the squared length of W
+    const lengthSquared = wX * wX + wY * wY;
+  
+    // Calculate the parameter 't' representing the projection of the circle center onto the line segment
+    const t = Math.max(0, Math.min(dot / lengthSquared, 1));
+  
+    // Calculate the closest point on the line to the circle center
+    const closestX = lineX1 + t * wX;
+    const closestY = lineY1 + t * wY;
+  
+    // Calculate the distance between the circle center and the closest point on the line
+    const distanceSquared = (circleX - closestX) ** 2 + (circleY - closestY) ** 2;
+  
+    // Check if a collision has occurred
+    return distanceSquared <= radius ** 2;
+  }

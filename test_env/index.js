@@ -10,8 +10,8 @@ class Particle {
         this.accellerationY = 0
     }
     update(){
-        let velX = this.x - this.oldX
-        let velY = this.y - this.oldY
+        let velX = (this.x - this.oldX)*0.99
+        let velY = (this.y - this.oldY)*0.99
         this.oldX = this.x
         this.oldY = this.y
         this.x += velX + this.accellerationX
@@ -79,8 +79,32 @@ class Constraint {
     }
   }
 
+class Player extends Particle{
+  constructor(x,y,r){
+    super(x,y,r)
+    document.addEventListener('keydown',(e)=>{
+      console.log(e.key)
+      if(e.key == 'a'){
+      this.accellerationX = -1
+      }
+      if(e.key == 'd'){
+      this.accellerationX = 1
+      }
+      if(e.key == 'w'){
+      this.accellerationY = -1
+      }
+      if(e.key == 's'){
+      this.accellerationY = 1
+      }
+    })
+  }
+  update(){
+    super.update()
 
-  const particles = [new Particle(100,200,20),new Particle(350,200,20),new Particle(225,10,20),new Particle(300,10,25)]
+  }
+
+}
+  const particles = [new Particle(100,200,20),new Particle(350,200,20),new Particle(225,10,20),new Player(300,50,25)]
   const constraints = [new Constraint(particles[0],particles[1],250),new Constraint(particles[1],particles[2],250),new Constraint(particles[2],particles[0],250)]
 
   const loop = () => {
@@ -88,7 +112,6 @@ class Constraint {
     requestAnimationFrame(loop)
 
     particles.forEach((particle)=>{
-        particle.accellerationY = 0.5
         particle.update()
         ctx.beginPath()
         ctx.arc(particle.x,particle.y,particle.r,0,Math.PI*2)
@@ -108,66 +131,36 @@ loop()
 
 // Function to calculate the MTV and resolve collision between a circle and a line
 function resolveCircleLineCollision(circle, line) {
-  // Circle properties
-  const circleX = circle.x;
-  const circleY = circle.y;
-  const radius = circle.r;
+  const closestPoint = getClosestPointOnLine(line.p1.x, line.p1.y, line.p2.x, line.p2.y, circle.x, circle.y);
+  const distance = Math.sqrt((circle.x-closestPoint.x)**2+(circle.y-closestPoint.y)**2);
+  const axis = {x: ( closestPoint.x -circle.x), y: (closestPoint.y-circle.y)};
+  const delta = circle.r - distance;
+  const normal = {x: axis.x/distance, y: axis.y/distance};
+  console.log(axis)
+  circle.x -= normal.x * delta;
+  circle.y -= normal.y * delta;
 
-  // Line properties
-  const lineX1 = line.p1.x;
-  const lineY1 = line.p1.y;
-  const lineX2 = line.p2.x;
-  const lineY2 = line.p2.y;
+  const p1Dist = Math.sqrt((line.p1.x-circle.x)**2+(line.p1.y-circle.y)**2)/line.distance;
 
-  // Vector from one endpoint of the line to the circle center
-  const vX = circleX - lineX1;
-  const vY = circleY - lineY1;
-
-  // Vector representing the line segment
-  const wX = lineX2 - lineX1;
-  const wY = lineY2 - lineY1;
-
-  // Calculate the dot product of V and W
-  const dot = vX * wX + vY * wY;
-
-  // Calculate the squared length of W
-  const lengthSquared = wX * wX + wY * wY;
-
-  // Calculate the parameter 't' representing the projection of the circle center onto the line segment
-  const t = Math.max(0, Math.min(dot / lengthSquared, 1));
-
-  // Calculate the closest point on the line to the circle center
-  const closestX = lineX1 + t * wX;
-  const closestY = lineY1 + t * wY;
-
-  // Calculate the vector from the circle center to the closest point on the line
-  const dX = closestX - circleX;
-  const dY = closestY - circleY;
-
-  // Calculate the distance between the circle center and the closest point on the line
-  const distance = Math.sqrt(dX * dX + dY * dY);
-
-  // Check if a collision has occurred
-  if (distance <= radius) {
-    // Calculate the penetration depth
-    const penetration = radius - distance;
-
-    // Calculate the MTV
-    const mtvX = (dX / distance) * penetration;
-    const mtvY = (dY / distance) * penetration;
-
-    // Move the circle
-    circle.x += mtvX;
-    circle.y += mtvY;
-
-    // Move the attached Verlet objects on the line
-    line.p1.x += mtvX;
-    line.p1.y += mtvY;
-    line.p2.x += mtvX;
-    line.p2.y += mtvY;
-  }
+  line.p1.x += normal.x * delta * (1-p1Dist);
+  line.p1.y += normal.y * delta * (1-p1Dist);
+  line.p2.x += normal.x * delta * p1Dist;
+  line.p2.y += normal.y * delta * p1Dist;
 }
 
+
+function getClosestPointOnLine(x1, y1, x2, y2, px, py) {
+  const dx = x2 - x1;
+  const dy = y2 - y1;
+  const vx = px - x1;
+  const vy = py - y1;
+  const dot = vx * dx + vy * dy;
+  const lengthSquared = dx * dx + dy * dy;
+  const t = Math.max(0, Math.min(dot / lengthSquared, 1));
+  const closestX = x1 + t * dx;
+  const closestY = y1 + t * dy;
+  return { x: closestX, y: closestY };
+}
 
 function circleLineCollision(circleX, circleY, radius, lineX1, lineY1, lineX2, lineY2) {
   // Vector from one endpoint of the line to the circle center

@@ -6,20 +6,6 @@ class FixedConstraint{
         this.p2 = p2
     }
     update(){
-  /*    const dx = this.target.transform.x - this.gameObject.transform.x
-        const dy = this.target.transform.y - this.gameObject.transform.y
-
-        const distance = Math.sqrt(dx*dx + dy*dy)
-        const difference = (this.restLength-distance)
-        const percent = difference / distance / 2
-
-        const offsetX = dx * percent;
-        const offsetY = dy * percent;
-
-        this.gameObject.transform.x -= offsetX*1
-        this.gameObject.transform.y -= offsetY*1
-        this.target.transform.x += offsetX*1
-        this.target.transform.x += offsetY*1 */
         const dx = this.p2.transform.x - this.p1.transform.x;
         const dy = this.p2.transform.y - this.p1.transform.y;
         const currentDistance = Math.sqrt(dx * dx + dy * dy);
@@ -33,12 +19,6 @@ class FixedConstraint{
 
         this.p2.transform.x += offsetX;
         this.p2.transform.y += offsetY;
-        //Cant render because this is called in the physics loop
-        /* window.main.ctx.beginPath()
-        window.main.ctx.lineWidth = 10
-        window.main.ctx.moveTo(this.p1.transform.x,this.p1.transform.y)
-        window.main.ctx.lineTo(this.p2.transform.x,this.p2.transform.y)
-        window.main.ctx.stroke() */
 
     }
     render(constraint){
