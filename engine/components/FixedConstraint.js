@@ -13,12 +13,16 @@ class FixedConstraint{
         
         const offsetX = dx * 0.5 * diff;
         const offsetY = dy * 0.5 * diff;
-        this.p1.transform.x -= offsetX;
-        this.p1.transform.y -= offsetY;
-        
+        if(!this.p1.rigidbody.static){
+          this.p1.transform.x -= offsetX;
+          this.p1.transform.y -= offsetY;
+        }
+        if(!this.p2.rigidbody.static){
+          this.p2.transform.x += offsetX;
+          this.p2.transform.y += offsetY;
+        }
 
-        this.p2.transform.x += offsetX;
-        this.p2.transform.y += offsetY;
+
 
     }
     render(constraint){

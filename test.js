@@ -6,19 +6,43 @@ wall1.attach(new ShapeRenderer('square',200,200))
 wall1.attach(new AABB(200,200))
 
 
-const player5 = new Player(1000,250,false,25)
-const player6 = new Player(1000,400,false,25)
-const player100 = new Player(1150,250,false,25)
-const player101 = new Player(1150,400,false,25)
-const player102 = new Player(1151,400,false,25)
-const player103 = new Player(1151,400,false,25)
+const player5 = new Player(700,300,false,25)
+const player6 = new Player(950,300,false,25)
+const player100 = new Player(825,83.5,false,25)
+const player101 = new Player(825+250,83.5,false,25)
+player5.rigidbody.static = true
+player6.rigidbody.static = true
+player100.rigidbody.static = true
+player101.rigidbody.static = true
 
-
+const player6v2 = new Player(1000+300,400,false,25)
+const player5v2 = new Player(1000+300,250,false,25)
+const player100v2 = new Player(1150+300,250,false,25)
+const player101v2 = new Player(1150+300,400,false,25)
+const ball1 = new Player(1150,800,false,50)
+ball1.rigidbody.static = true
 const main = new Main(undefined,144)
 
 
-/* main.addConstraint(new FixedConstraint(player102,player100,150))
-main.addConstraint(new FixedConstraint(player103,player102,150)) */
+
+const point_1=new Point(100,1000,false)
+const point_2=new Point(700,1000,false)
+
+const point1=new Point(300,1000,false)
+const point2=new Point(500,1000,false)
+const point3=new Point(300,800,false)
+const point4=new Point(500,800,false)
+const point5=new Point(300,600,false)
+const point6=new Point(500,600,false)
+const point7=new Point(300,400,false)
+const point8=new Point(500,400,false)
+const point9=new Point(300,200,false)
+const point10=new Point(500,200,false)
+
+const point11=new Point(700,400,false)
+const point12=new Point(900,400,false)
+const point13=new Point(700,200,false)
+const point14=new Point(900,200,false)
 main.setScenes({
     testScene:{
         gameObjects:{
@@ -26,10 +50,21 @@ main.setScenes({
             player6,
             player100,
             player101,
-            player102,
-            player103,
+            player5v2,
+            player6v2,
+            player100v2,
+            player101v2,
+            ball1,
             player: new Player(600,500,true),
-/*             player1: new Player(1000,1000),
+
+            wall,
+        }
+    },
+    demoScene:{
+        gameObjects:{
+            player: new Player(960,300,true),
+            wall1,
+            player1: new Player(1000,1000),
             player2: new Player(1000,900),
             player3: new Player(1000,800),
             player4: new Player(1000,700),
@@ -63,23 +98,89 @@ main.setScenes({
             player33: new Player(1500,800),
             player34: new Player(1500,700),
             player35: new Player(1500,600),
-            player36: new Player(1500,500), */
-            wall,
+            player36: new Player(1500,500),
         }
     },
-    demoScene:{
+    crane:{
         gameObjects:{
-            player: new Player(960,300,true),
-            wall1,
+            player:new Player(600,500,true),
+            point_1,
+            point_2,
+            point1,
+            point2,
+            point3,
+            point4,
+            point5,
+            point6,
+            point7,
+            point8,
+            point9,
+            point10,
+            point11,
+            point12,
+            point13,
+            point14,
         }
+
     }
 })
+
+main.changeScene('crane')
+main.addConstraint(new FixedConstraint(point1,point_1,200))
+main.addConstraint(new FixedConstraint(point3,point_1,282.84271247461900976033774484194))
+main.addConstraint(new FixedConstraint(point2,point_2,200))
+main.addConstraint(new FixedConstraint(point4,point_2,282.84271247461900976033774484194))
+
+main.addConstraint(new FixedConstraint(point1,point2,200))
+main.addConstraint(new FixedConstraint(point1,point4,282.84271247461900976033774484194))
+main.addConstraint(new FixedConstraint(point1,point3,200))
+main.addConstraint(new FixedConstraint(point4,point2,200))
+main.addConstraint(new FixedConstraint(point3,point4,200))
+main.addConstraint(new FixedConstraint(point3,point6,282.84271247461900976033774484194))
+main.addConstraint(new FixedConstraint(point5,point6,200))
+main.addConstraint(new FixedConstraint(point3,point5,200))
+main.addConstraint(new FixedConstraint(point4,point6,200))
+main.addConstraint(new FixedConstraint(point5,point7,200))
+main.addConstraint(new FixedConstraint(point6,point8,200))
+main.addConstraint(new FixedConstraint(point6,point8,200))
+main.addConstraint(new FixedConstraint(point7,point8,200))
+main.addConstraint(new FixedConstraint(point5,point8,282.84271247461900976033774484194))
+main.addConstraint(new FixedConstraint(point7,point10,282.84271247461900976033774484194))
+main.addConstraint(new FixedConstraint(point9,point10,200))
+main.addConstraint(new FixedConstraint(point7,point9,200))
+main.addConstraint(new FixedConstraint(point8,point10,200))
+main.addConstraint(new FixedConstraint(point10,point13,200))
+main.addConstraint(new FixedConstraint(point8,point11,200))
+main.addConstraint(new FixedConstraint(point8,point13,282.84271247461900976033774484194))
+main.addConstraint(new FixedConstraint(point13,point11,200))
+main.addConstraint(new FixedConstraint(point13,point14,200))
+main.addConstraint(new FixedConstraint(point11,point12,200))
+main.addConstraint(new FixedConstraint(point12,point14,200))
+main.addConstraint(new FixedConstraint(point14,point11,282.84271247461900976033774484194))
+
+
+
+
+
+
+
+
+
+
+main.changeScene('testScene')
 
 main.addConstraint(new FixedConstraint(player5,player6,250))
 main.addConstraint(new FixedConstraint(player5,player100,250))
 main.addConstraint(new FixedConstraint(player100,player6,250))
 main.addConstraint(new FixedConstraint(player101,player6,250))
 main.addConstraint(new FixedConstraint(player101,player100,250))
+
+main.addConstraint(new FixedConstraint(player5v2,player6v2,250))
+main.addConstraint(new FixedConstraint(player5v2,player100v2,250))
+main.addConstraint(new FixedConstraint(player100v2,player6v2,250))
+main.addConstraint(new FixedConstraint(player101v2,player6v2,250))
+main.addConstraint(new FixedConstraint(player101v2,player100v2,250))
+
 
 /*main.setScenes({
     testScene:{
@@ -101,6 +202,7 @@ main.addConstraint(new FixedConstraint(player101,player100,250))
 })
 */
 
+main.changeScene('crane')
 
 let x = 0
 
@@ -111,15 +213,26 @@ const loop = ()=>{
     //p.rigidbody.accelerate(35000,0)
     main.instantiate(p,'a'+ x.toString())
 }
+
+
+let currentScene = 0
+
 main.mainUpdate = () => {
 
     if(main.keyDown.KeyK){
-        if(main.currentScene == 'testScene'){
-            main.changeScene('demoScene')
-        }
-        else{
+        currentScene = currentScene + 1
+        if(currentScene >= 3) {currentScene = 0}
+        if(currentScene == 0){
             main.changeScene('testScene')
         }
+        if(currentScene == 1){
+            console.log('demo scene')
+            main.changeScene('demoScene')
+        }
+        if(currentScene == 2){
+            main.changeScene('crane')
+        }
+
     }
 
     if(main.keyDown.Space){ 

@@ -8,16 +8,20 @@ class Particle {
         this.oldY = y
         this.accellerationX = 0
         this.accellerationY = 0
+        this.xOver = undefined
+        this.yOver = undefined
     }
     update(){
-        let velX = (this.x - this.oldX)*0.99
-        let velY = (this.y - this.oldY)*0.99
+        this.velX = this.xOver||(this.x - this.oldX)*0.99
+        this.velY = this.yOver||(this.y - this.oldY)*0.99
         this.oldX = this.x
         this.oldY = this.y
-        this.x += velX + this.accellerationX
-        this.y += velY + this.accellerationY
+        this.x += this.velX + this.accellerationX
+        this.y += this.velY + this.accellerationY
         this.accellerationX = 0
         this.accellerationY = 0
+        this.xOver = undefined
+        this.yOver = undefined
         this.applyConstraints()
     }
     applyConstraints() {
@@ -129,6 +133,7 @@ class Player extends Particle{
 loop()
 
 
+
 // Function to calculate the MTV and resolve collision between a circle and a line
 function resolveCircleLineCollision(circle, line) {
   const closestPoint = getClosestPointOnLine(line.p1.x, line.p1.y, line.p2.x, line.p2.y, circle.x, circle.y);
@@ -136,12 +141,18 @@ function resolveCircleLineCollision(circle, line) {
   const axis = {x: ( closestPoint.x -circle.x), y: (closestPoint.y-circle.y)};
   const delta = circle.r - distance;
   const normal = {x: axis.x/distance, y: axis.y/distance};
+  
   console.log(axis)
   circle.x -= normal.x * delta;
   circle.y -= normal.y * delta;
-
+  const lineNormal = calculateNormalizedNormal(line.p1.x, line.p1.y, line.p2.x, line.p2.y)
+  const reflectionX = circle.velX - 2 * dotProduct(circle.velX, circle.velY, lineNormal.x, lineNormal.y) * lineNormal.x;
+  const reflectionY = circle.velY - 2 * dotProduct(circle.velX, circle.velY, lineNormal.x, lineNormal.y) * lineNormal.y;
+  circle.xOver = reflectionX*0.1;
+  circle.yOver = reflectionY*0.1;
+  
   const p1Dist = Math.sqrt((line.p1.x-circle.x)**2+(line.p1.y-circle.y)**2)/line.distance;
-
+  
   line.p1.x += normal.x * delta * (1-p1Dist);
   line.p1.y += normal.y * delta * (1-p1Dist);
   line.p2.x += normal.x * delta * p1Dist;
@@ -166,33 +177,54 @@ function circleLineCollision(circleX, circleY, radius, lineX1, lineY1, lineX2, l
   // Vector from one endpoint of the line to the circle center
   const vX = circleX - lineX1;
   const vY = circleY - lineY1;
-
+  
   // Vector representing the line segment
   const wX = lineX2 - lineX1;
   const wY = lineY2 - lineY1;
-
+  
   // Calculate the dot product of V and W
   const dot = vX * wX + vY * wY;
-
+  
   // Calculate the squared length of W
   const lengthSquared = wX * wX + wY * wY;
-
+  
   // Calculate the parameter 't' representing the projection of the circle center onto the line segment
   const t = Math.max(0, Math.min(dot / lengthSquared, 1));
-
+  
   // Calculate the closest point on the line to the circle center
   const closestX = lineX1 + t * wX;
   const closestY = lineY1 + t * wY;
-
+  
   // Calculate the distance between the circle center and the closest point on the line
   const distanceSquared = (circleX - closestX) ** 2 + (circleY - closestY) ** 2;
-
+  
   // Check if a collision has occurred
   return distanceSquared <= radius ** 2;
 }
 
+function dotProduct(x1, y1, x2, y2) {
+    return x1 * x2 + y1 * y2;
+}
 
-
+function calculateNormalizedNormal(linePoint1X, linePoint1Y, linePoint2X, linePoint2Y) {
+  // Step 1: Calculate the direction vector of the line
+  const directionVectorX = linePoint2X - linePoint1X;
+  const directionVectorY = linePoint2Y - linePoint1Y;
+  
+  // Step 2: Calculate the normal vector by swapping and negating the components
+  const normalVectorX = -directionVectorY;
+  const normalVectorY = directionVectorX;
+  
+  // Step 3: Calculate the magnitude of the normal vector
+  const magnitude = Math.sqrt(normalVectorX * normalVectorX + normalVectorY * normalVectorY);
+  
+  // Step 4: Normalize the normal vector by dividing each component by the magnitude
+  const normalizedNormalX = normalVectorX / magnitude;
+  const normalizedNormalY = normalVectorY / magnitude;
+  
+  // Return the normalized normal vector
+  return {x:normalizedNormalX, y:normalizedNormalY};
+}
 /* 
 // Particle class
 class Particle {

@@ -56,12 +56,12 @@ class Main{
 
         document.dispatchEvent(this.event)
 
-        Object.keys(this.scenes[this.currentScene].gameObjects).forEach((key)=>{
-            this.scenes[this.currentScene].gameObjects[key]._update(this.deltaTime)
-        })
         this.scenes[this.currentScene].constraints.forEach((constraint)=>{
             //Render the constraint
             constraint.render(constraint)
+        })
+        Object.keys(this.scenes[this.currentScene].gameObjects).forEach((key)=>{
+            this.scenes[this.currentScene].gameObjects[key]._update(this.deltaTime)
         })
         this.mainUpdate()
 

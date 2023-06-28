@@ -49,13 +49,5 @@ class Player extends GameObject{
     }
     fixedUpdate(){
         if(!this.isControlled) return
-/*         window.main.fixedConstraints.forEach(constraint=>{
-            const {distance,closestPoint} = constraint.getDistance(this.transform)
-            if(distance<50){
-                console.log(distance)
-            }
-
-
-        }) */
     }
 }

@@ -2,6 +2,8 @@ class Rigidbody{
     constructor(){
         this.name = 'Rigidbody'
         this.acceleration={x:0,y:0}
+        this.static = false
+        this.friction = 0.96
     }
     _init(gameObject){
         this.gameObject = gameObject
@@ -12,28 +14,31 @@ class Rigidbody{
         this.yOverride = undefined
     }
     update(deltaTime){
-        this.verlet(deltaTime)
-        this.constraints()
-        this.collisions()
+        if(this.static){
+            this.collisions()
+        }
+        else{
+            this.verlet(deltaTime)
+            this.constraints()
+            this.collisions()
+        }
     }
 
 
     verlet(deltaTime){
-        this.velocityX = this.xOverride || (this.gameObject.transform.x - this.oldX)*0.99
-        this.velocityY = this.yOverride || (this.gameObject.transform.y - this.oldY)*0.99
+        this.velocityX = this.xOverride*this.friction || (this.gameObject.transform.x - this.oldX)*this.friction
+        this.velocityY = this.yOverride*this.friction || (this.gameObject.transform.y - this.oldY)*this.friction
+
         this.oldX = this.gameObject.transform.x
         this.oldY = this.gameObject.transform.y
         this.gameObject.transform.x = this.gameObject.transform.x + this.velocityX + (this.acceleration.x * deltaTime*deltaTime)
         this.gameObject.transform.y = this.gameObject.transform.y + this.velocityY + (this.acceleration.y * deltaTime*deltaTime)
-        /* this.gameObject.transform.x = this.gameObject.transform.x+velocityX*deltaTime/this.prevDeltaTime+this.acceleration.x*deltaTime**2
-        this.gameObject.transform.y = this.gameObject.transform.y+velocityY*deltaTime/this.prevDeltaTime+this.acceleration.y*deltaTime**2 */
 
         this.acceleration.y = 0
         this.acceleration.x = 0
         this.prevDeltaTime = deltaTime
         this.xOverride = undefined
         this.yOverride = undefined
-        //console.log(Math.abs(this.velocityX) +Math.abs(this.velocityY))
     }
 
     constraints(){
@@ -142,14 +147,12 @@ class Rigidbody{
             if(!(constraint.p1 == this.gameObject || constraint.p2 == this.gameObject)){
                 const check = circleLineCollision(this.gameObject.transform.x,this.gameObject.transform.y,this.gameObject.collider.radius,constraint.p1.transform.x,constraint.p1.transform.y,constraint.p2.transform.x,constraint.p2.transform.y)
                 if(check){
-                    console.log('collision')
                     resolveCircleLineCollision(this.gameObject,constraint)
                 }
             }
         })
 
         
-
 
         for(let i = 0;i<window.main.rigidbodies.length;i++){
             if(window.main.rigidbodies[i]==this) return
@@ -160,10 +163,14 @@ class Rigidbody{
                 const nX = axisX/dist
                 const nY = axisY/dist
                 const delta = this.gameObject.collider.radius + window.main.rigidbodies[i].gameObject.collider.radius-dist
-                this.gameObject.transform.x += 0.5*delta*nX*1
-                this.gameObject.transform.y += 0.5*delta*nY*1
-                window.main.rigidbodies[i].gameObject.transform.x -= 0.5*delta*nX*1
-                window.main.rigidbodies[i].gameObject.transform.y -= 0.5*delta*nY*1
+                if(!this.static){
+                    this.gameObject.transform.x += 0.5*delta*nX*1
+                    this.gameObject.transform.y += 0.5*delta*nY*1
+                }
+                if(!window.main.rigidbodies[i].gameObject.rigidbody.static){
+                    window.main.rigidbodies[i].gameObject.transform.x -= 0.5*delta*nX*1
+                    window.main.rigidbodies[i].gameObject.transform.y -= 0.5*delta*nY*1
+                }
             }
         }
 
@@ -183,15 +190,33 @@ function resolveCircleLineCollision(circle, constraint) {
     const axis = {x: ( closestPoint.x -circle.transform.x), y: (closestPoint.y-circle.transform.y)};
     const delta = circle.collider.radius - distance;
     const normal = {x: axis.x/distance, y: axis.y/distance};
-    circle.transform.x -= normal.x * delta;
-    circle.transform.y -= normal.y * delta;
-  
+    console.log(circle.rigidbody.static)
+    if(!circle.rigidbody.static){
+        circle.transform.x -= normal.x * delta;
+        circle.transform.y -= normal.y * delta;
+    }
+    //Flip the velocity based on the lines normal.
+
+    const lineNormal = calculateNormalizedNormal(constraint.p1.transform.x, constraint.p1.transform.y, constraint.p2.transform.x, constraint.p2.transform.y)
+    const reflectionX = circle.rigidbody.velocityX - 2 * dotProduct( circle.rigidbody.velocityX,  circle.rigidbody.velocityY, lineNormal.x, lineNormal.y) * lineNormal.x;
+    const reflectionY = circle.rigidbody.velocityY - 2 * dotProduct( circle.rigidbody.velocityX,  circle.rigidbody.velocityY, lineNormal.x, lineNormal.y) * lineNormal.y;
+    circle.rigidbody.xOverride = reflectionX*0.2;
+    circle.rigidbody.yOverride = reflectionY*0.2;
+    
+
+
+
+
+    //Move the line points also
     const p1Dist = Math.sqrt((constraint.p1.transform.x-circle.transform.x)**2+(constraint.p1.transform.y-circle.transform.y)**2)/constraint.distance;
-  
-    constraint.p1.transform.x += normal.x * delta * (1-p1Dist);
-    constraint.p1.transform.y += normal.y * delta * (1-p1Dist);
-    constraint.p2.transform.x += normal.x * delta * p1Dist;
-    constraint.p2.transform.y += normal.y * delta * p1Dist;
+    if(!constraint.p1.rigidbody.static){
+        constraint.p1.transform.x += normal.x * delta * (1-p1Dist);
+        constraint.p1.transform.y += normal.y * delta * (1-p1Dist);
+    }
+    if(!constraint.p2.rigidbody.static){
+        constraint.p2.transform.x += normal.x * delta * p1Dist;
+        constraint.p2.transform.y += normal.y * delta * p1Dist;
+    }
   }
   
   
@@ -229,10 +254,66 @@ function resolveCircleLineCollision(circle, constraint) {
     // Calculate the closest point on the line to the circle center
     const closestX = lineX1 + t * wX;
     const closestY = lineY1 + t * wY;
-  
+   
     // Calculate the distance between the circle center and the closest point on the line
     const distanceSquared = (circleX - closestX) ** 2 + (circleY - closestY) ** 2;
   
     // Check if a collision has occurred
     return distanceSquared <= radius ** 2;
   }
+
+
+
+
+
+// Function to flip a vector based on a line's normal
+function flipVectorOnLine(vectorX, vectorY, linePoint1X, linePoint1Y, linePoint2X, linePoint2Y) {
+    // Step 1: Calculate the line normal
+    const lineNormalX = linePoint2Y - linePoint1Y;
+    const lineNormalY = linePoint1X - linePoint2X;
+  
+    // Step 2: Normalize the line normal
+    const magnitude = Math.sqrt(lineNormalX * lineNormalX + lineNormalY * lineNormalY);
+    const normalizedLineNormalX = lineNormalX / magnitude;
+    const normalizedLineNormalY = lineNormalY / magnitude;
+  
+    // Step 3: Calculate the dot product
+    const dotProduct = vectorX * normalizedLineNormalX + vectorY * normalizedLineNormalY;
+  
+    // Step 4: Multiply the dot product by 2
+    const result = 2 * dotProduct;
+  
+    // Step 5: Multiply the line normal by the result
+    const flippedVectorX = result * normalizedLineNormalX;
+    const flippedVectorY = result * normalizedLineNormalY;
+  
+    // Step 6: Subtract the result from the vector to be flipped
+    const flippedX = vectorX - flippedVectorX;
+    const flippedY = vectorY - flippedVectorY;
+  
+    // Return the flipped vector
+    return {x:flippedX, y:flippedY}
+  }
+function dotProduct(x1, y1, x2, y2) {
+    return x1 * x2 + y1 * y2;
+}
+
+function calculateNormalizedNormal(linePoint1X, linePoint1Y, linePoint2X, linePoint2Y) {
+  // Step 1: Calculate the direction vector of the line
+  const directionVectorX = linePoint2X - linePoint1X;
+  const directionVectorY = linePoint2Y - linePoint1Y;
+  
+  // Step 2: Calculate the normal vector by swapping and negating the components
+  const normalVectorX = -directionVectorY;
+  const normalVectorY = directionVectorX;
+  
+  // Step 3: Calculate the magnitude of the normal vector
+  const magnitude = Math.sqrt(normalVectorX * normalVectorX + normalVectorY * normalVectorY);
+  
+  // Step 4: Normalize the normal vector by dividing each component by the magnitude
+  const normalizedNormalX = normalVectorX / magnitude;
+  const normalizedNormalY = normalVectorY / magnitude;
+  
+  // Return the normalized normal vector
+  return {x:normalizedNormalX, y:normalizedNormalY};
+}
