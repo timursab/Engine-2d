@@ -1,9 +1,9 @@
 class Player extends GameObject{
-    constructor(posX,posY,isControlled,radius){
+    constructor(posX,posY,isControlled,radius,isGravity){
         super(posX,posY)
 
         this.isControlled = isControlled
-
+        this.isGravity = isGravity
         if(isControlled){
             this.input = new KeyboardInputs()
             this.attach(new ShapeRenderer('circle',radius || 50,0,"#FFFFFF"))
@@ -36,7 +36,10 @@ class Player extends GameObject{
         else{
             this.rigidbody.accelerate(0,0*deltaTime)
         }
+        //Gravity
+        this.rigidbody.accelerate(0,this.isGravity?300*deltaTime:0)
 
+        //Move away from mouse
         if(window.main.controls.KeyZ){
             const aX = this.transform.x-window.main.mousePos.x
             const aY = this.transform.y-window.main.mousePos.y

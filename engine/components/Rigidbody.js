@@ -28,7 +28,7 @@ class Rigidbody{
     verlet(deltaTime){
         this.velocityX = this.xOverride*this.friction || (this.gameObject.transform.x - this.oldX)*this.friction
         this.velocityY = this.yOverride*this.friction || (this.gameObject.transform.y - this.oldY)*this.friction
-
+        console.log(deltaTime)
         this.oldX = this.gameObject.transform.x
         this.oldY = this.gameObject.transform.y
         this.gameObject.transform.x = this.gameObject.transform.x + this.velocityX + (this.acceleration.x * deltaTime*deltaTime)
@@ -197,11 +197,11 @@ function resolveCircleLineCollision(circle, constraint) {
     }
     //Flip the velocity based on the lines normal.
 
-    const lineNormal = calculateNormalizedNormal(constraint.p1.transform.x, constraint.p1.transform.y, constraint.p2.transform.x, constraint.p2.transform.y)
+/*     const lineNormal = calculateNormalizedNormal(constraint.p1.transform.x, constraint.p1.transform.y, constraint.p2.transform.x, constraint.p2.transform.y)
     const reflectionX = circle.rigidbody.velocityX - 2 * dotProduct( circle.rigidbody.velocityX,  circle.rigidbody.velocityY, lineNormal.x, lineNormal.y) * lineNormal.x;
     const reflectionY = circle.rigidbody.velocityY - 2 * dotProduct( circle.rigidbody.velocityX,  circle.rigidbody.velocityY, lineNormal.x, lineNormal.y) * lineNormal.y;
     circle.rigidbody.xOverride = reflectionX*0.2;
-    circle.rigidbody.yOverride = reflectionY*0.2;
+    circle.rigidbody.yOverride = reflectionY*0.2; */
     
 
 
@@ -263,9 +263,6 @@ function resolveCircleLineCollision(circle, constraint) {
   }
 
 
-
-
-
 // Function to flip a vector based on a line's normal
 function flipVectorOnLine(vectorX, vectorY, linePoint1X, linePoint1Y, linePoint2X, linePoint2Y) {
     // Step 1: Calculate the line normal
@@ -293,7 +290,7 @@ function flipVectorOnLine(vectorX, vectorY, linePoint1X, linePoint1Y, linePoint2
   
     // Return the flipped vector
     return {x:flippedX, y:flippedY}
-  }
+}
 function dotProduct(x1, y1, x2, y2) {
     return x1 * x2 + y1 * y2;
 }

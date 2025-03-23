@@ -225,6 +225,12 @@ function calculateNormalizedNormal(linePoint1X, linePoint1Y, linePoint2X, linePo
   // Return the normalized normal vector
   return {x:normalizedNormalX, y:normalizedNormalY};
 }
+
+
+
+
+
+
 /* 
 // Particle class
 class Particle {

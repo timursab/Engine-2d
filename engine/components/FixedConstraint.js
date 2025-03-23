@@ -21,9 +21,6 @@ class FixedConstraint{
           this.p2.transform.x += offsetX;
           this.p2.transform.y += offsetY;
         }
-
-
-
     }
     render(constraint){
       window.main.ctx.beginPath()
