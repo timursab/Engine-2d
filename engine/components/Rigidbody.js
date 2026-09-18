@@ -234,61 +234,61 @@ function resolveCircleLineCollision(circle, constraint) {
   }
   
   function circleLineCollision(circleX, circleY, radius, lineX1, lineY1, lineX2, lineY2) {
-    // Vector from one endpoint of the line to the circle center
+
     const vX = circleX - lineX1;
     const vY = circleY - lineY1;
   
-    // Vector representing the line segment
+
     const wX = lineX2 - lineX1;
     const wY = lineY2 - lineY1;
   
-    // Calculate the dot product of V and W
+
     const dot = vX * wX + vY * wY;
   
-    // Calculate the squared length of W
+
     const lengthSquared = wX * wX + wY * wY;
   
-    // Calculate the parameter 't' representing the projection of the circle center onto the line segment
+
     const t = Math.max(0, Math.min(dot / lengthSquared, 1));
   
-    // Calculate the closest point on the line to the circle center
+
     const closestX = lineX1 + t * wX;
     const closestY = lineY1 + t * wY;
    
-    // Calculate the distance between the circle center and the closest point on the line
+
     const distanceSquared = (circleX - closestX) ** 2 + (circleY - closestY) ** 2;
   
-    // Check if a collision has occurred
+
     return distanceSquared <= radius ** 2;
   }
 
 
-// Function to flip a vector based on a line's normal
+
 function flipVectorOnLine(vectorX, vectorY, linePoint1X, linePoint1Y, linePoint2X, linePoint2Y) {
-    // Step 1: Calculate the line normal
+
     const lineNormalX = linePoint2Y - linePoint1Y;
     const lineNormalY = linePoint1X - linePoint2X;
   
-    // Step 2: Normalize the line normal
+
     const magnitude = Math.sqrt(lineNormalX * lineNormalX + lineNormalY * lineNormalY);
     const normalizedLineNormalX = lineNormalX / magnitude;
     const normalizedLineNormalY = lineNormalY / magnitude;
   
-    // Step 3: Calculate the dot product
+
     const dotProduct = vectorX * normalizedLineNormalX + vectorY * normalizedLineNormalY;
   
-    // Step 4: Multiply the dot product by 2
+
     const result = 2 * dotProduct;
   
-    // Step 5: Multiply the line normal by the result
+
     const flippedVectorX = result * normalizedLineNormalX;
     const flippedVectorY = result * normalizedLineNormalY;
   
-    // Step 6: Subtract the result from the vector to be flipped
+
     const flippedX = vectorX - flippedVectorX;
     const flippedY = vectorY - flippedVectorY;
   
-    // Return the flipped vector
+
     return {x:flippedX, y:flippedY}
 }
 function dotProduct(x1, y1, x2, y2) {
@@ -296,21 +296,21 @@ function dotProduct(x1, y1, x2, y2) {
 }
 
 function calculateNormalizedNormal(linePoint1X, linePoint1Y, linePoint2X, linePoint2Y) {
-  // Step 1: Calculate the direction vector of the line
+
   const directionVectorX = linePoint2X - linePoint1X;
   const directionVectorY = linePoint2Y - linePoint1Y;
   
-  // Step 2: Calculate the normal vector by swapping and negating the components
+
   const normalVectorX = -directionVectorY;
   const normalVectorY = directionVectorX;
   
-  // Step 3: Calculate the magnitude of the normal vector
+
   const magnitude = Math.sqrt(normalVectorX * normalVectorX + normalVectorY * normalVectorY);
   
-  // Step 4: Normalize the normal vector by dividing each component by the magnitude
+  
   const normalizedNormalX = normalVectorX / magnitude;
   const normalizedNormalY = normalVectorY / magnitude;
   
-  // Return the normalized normal vector
+ 
   return {x:normalizedNormalX, y:normalizedNormalY};
 }
